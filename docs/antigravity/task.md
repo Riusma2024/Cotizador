@@ -1,0 +1,50 @@
+# QuoterPro - Task List
+
+- [x] Project Initialization <!-- id: 0 -->
+    - [x] Create React App (Vite) <!-- id: 1 -->
+    - [x] Setup TailwindCSS <!-- id: 2 -->
+    - [x] Configure Routing (React Router) <!-- id: 3 -->
+- [/] Data Layer & Configuration <!-- id: 4 -->
+    - [x] Define Data Interfaces (TypeScript) <!-- id: 5 -->
+    - [x] Implement Local Persistence Service (Mocking Firestore) <!-- id: 6 -->
+    - [x] Create Company Configuration Screen <!-- id: 7 -->
+    - [ ] Refactor for Multi-Company Support <!-- id: 22 -->
+        - [x] Update Data Model (Company ID) <!-- id: 23 -->
+        - [x] Update Storage Service (List of Companies) <!-- id: 24 -->
+        - [x] Create Company List View <!-- id: 25 -->
+        - [x] Add Company Context Switching <!-- id: 26 -->
+- [x] Catalog Management <!-- id: 8 -->
+    - [x] Product/Service List View <!-- id: 9 -->
+    - [x] Product/Service Add/Edit Form <!-- id: 10 -->
+        - [x] Auto-generate SKU from Name/Category <!-- id: 27 -->
+        - [x] Auto-fill Unit based on Calculation Type <!-- id: 28 -->
+    - [x] Implement Calculation Logic (Fixed, ML, M2) <!-- id: 11 -->
+    - [x] Product Deletion <!-- id: 29 -->
+    - [x] Category Management (CRUD) <!-- id: 30 -->
+        - [x] Data Model & Storage <!-- id: 31 -->
+        - [x] Category Manager UI <!-- id: 32 -->
+        - [x] Integrate with Product Form (Combobox) <!-- id: 33 -->
+        - [x] Update Product List (Show Category) <!-- id: 34 -->
+- [ ] Quote Management <!-- id: 12 -->
+    - [x] Quote Dashboard (List of Quotes) <!-- id: 13 -->
+    - [x] Quote Editor (Main UI) <!-- id: 14 -->
+        - [x] Header/Customer Info <!-- id: 15 -->
+        - [x] Line Items & Calculations <!-- id: 16 -->
+        - [x] Totals & Footer <!-- id: 17 -->
+    - [x] PDF Preview/Generation <!-- id: 18 -->
+    - [x] Quote Refinements (User Feedback) <!-- id: 35 -->
+        - [x] Reorder Fields (Qty first) & PDF Layout Updates <!-- id: 36 -->
+        - [x] Customer Address & Phone <!-- id: 37 -->
+        - [x] Date Handling (DD-MM-YYYY, Manual) <!-- id: 38 -->
+        - [x] Employee & Position Fields <!-- id: 39 -->
+        - [x] Validity Date (Default +15 days) <!-- id: 40 -->
+        - [x] IVA Toggle (Default Off) <!-- id: 41 -->
+        - [x] Free-text Product Entry <!-- id: 42 -->
+    - [x] Quote Refinements II (User Feedback) <!-- id: 43 -->
+        - [x] Dimension Units (CM/M) & Calculation Update <!-- id: 44 -->
+        - [x] Additional Notes Field <!-- id: 45 -->
+        - [x] Pagination (Page X of Y) & Footer <!-- id: 46 -->
+        - [x] Fix "Invalid Date" in PDF <!-- id: 47 -->
+- [ ] Polish & Responsive Design <!-- id: 19 -->
+    - [ ] Mobile Layout Adjustments <!-- id: 20 -->
+    - [ ] UI Polish (Animations, Transitions) <!-- id: 21 -->
