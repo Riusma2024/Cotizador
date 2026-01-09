@@ -9,6 +9,13 @@ export interface CompanyConfig {
     logoUrl?: string;
     folioPrefix: string;
     currentFolio: number;
+    headerLabel1?: string; // Etiqueta debajo del logo
+    headerLabel2?: string; // Etiqueta debajo de info empresa
+    headerLabel3?: string; // Etiqueta debajo de folio/fecha
+    watermarkUrl?: string; // URL de la marca de agua
+    watermarkOpacity?: number; // Opacidad de la marca de agua (0-100)
+    watermarkAlignment?: 'left' | 'center' | 'right'; // Alineación
+    watermarkSize?: '100' | '75' | '50'; // Tamaño en porcentaje
 }
 
 export interface Category {
@@ -32,6 +39,7 @@ export interface Product {
 
 export interface Customer {
     id: string;
+    companyId: string;
     name: string;
     address: string;
     phone: string;
@@ -48,6 +56,16 @@ export interface QuoteItem {
     dimensionUnit?: 'm' | 'cm';
     unitPrice: number;
     subtotal: number;
+}
+
+export interface AnnexItem {
+    id: string;
+    type: 'text' | 'image';
+    content: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
 }
 
 export interface Quote {
@@ -67,4 +85,9 @@ export interface Quote {
     validityDate: string;
     showIva: boolean;
     notes?: string;
+    showSignature?: boolean;
+    annexItems?: AnnexItem[];
+    customHeaderLabel1?: string;
+    customHeaderLabel2?: string;
+    customHeaderLabel3?: string;
 }

@@ -17,8 +17,32 @@ const formatDate = (dateString: string) => {
 
 export const QuotePDF = React.forwardRef<HTMLDivElement, QuotePDFProps>(({ quote, company }, ref) => {
     return (
-        <div ref={ref} className="bg-white text-gray-900 overflow-visible">
-            <table className="w-full">
+        <div ref={ref} className="bg-white text-gray-900 overflow-visible relative">
+            {/* Watermark - Fixed to background for all pages */}
+            {company.watermarkUrl && (
+                <div
+                    className={`fixed left-0 right-0 bottom-0 flex items-center z-0 pointer-events-none print:fixed print:left-0 print:right-0 print:bottom-0 ${company.watermarkAlignment === 'left' ? 'justify-start pl-20' :
+                        company.watermarkAlignment === 'right' ? 'justify-end pr-20' :
+                            'justify-center'
+                        }`}
+                    style={{
+                        // Start below customer info (approx 320px) and take remaining height
+                        top: '320px',
+                        height: 'auto'
+                    }}
+                >
+                    <img
+                        src={company.watermarkUrl}
+                        alt="Watermark"
+                        className={`object-contain ${company.watermarkSize === '75' ? 'max-w-[75%] max-h-[75%]' :
+                            company.watermarkSize === '50' ? 'max-w-[50%] max-h-[50%]' :
+                                'max-w-[80%] max-h-[80%]'
+                            }`}
+                        style={{ opacity: (company.watermarkOpacity || 8) / 100 }}
+                    />
+                </div>
+            )}
+            <table className="w-full relative z-10">
                 {/* Repetitive Header */}
                 <thead className="table-header-group">
                     <tr>
@@ -38,9 +62,9 @@ export const QuotePDF = React.forwardRef<HTMLDivElement, QuotePDFProps>(({ quote
                                                 {company.name.substring(0, 3)}
                                             </div>
                                         )}
-                                        {company.headerLabel1 && (
+                                        {(quote.customHeaderLabel1 !== undefined ? quote.customHeaderLabel1 : company.headerLabel1) && (
                                             <span className="text-[9px] text-gray-500 uppercase font-medium tracking-tight">
-                                                {company.headerLabel1}
+                                                {quote.customHeaderLabel1 !== undefined ? quote.customHeaderLabel1 : company.headerLabel1}
                                             </span>
                                         )}
                                     </div>
@@ -50,9 +74,9 @@ export const QuotePDF = React.forwardRef<HTMLDivElement, QuotePDFProps>(({ quote
                                         <h1 className="text-md font-bold text-gray-800 uppercase leading-tight">{company.name}</h1>
                                         <p className="text-[10px] text-gray-600 mt-0.5">{company.address}</p>
                                         <p className="text-[10px] text-gray-500 mt-0.5">{company.phone} | {company.email}</p>
-                                        {company.headerLabel2 && (
+                                        {(quote.customHeaderLabel2 !== undefined ? quote.customHeaderLabel2 : company.headerLabel2) && (
                                             <span className="text-[9px] text-gray-500 uppercase font-medium mt-1 tracking-tight">
-                                                {company.headerLabel2}
+                                                {quote.customHeaderLabel2 !== undefined ? quote.customHeaderLabel2 : company.headerLabel2}
                                             </span>
                                         )}
                                     </div>
@@ -68,9 +92,9 @@ export const QuotePDF = React.forwardRef<HTMLDivElement, QuotePDFProps>(({ quote
                                         <p className="text-[10px] text-gray-600 font-medium">
                                             Vigencia: <span className="text-gray-900">{formatDate(quote.validityDate)}</span>
                                         </p>
-                                        {company.headerLabel3 && (
+                                        {(quote.customHeaderLabel3 !== undefined ? quote.customHeaderLabel3 : company.headerLabel3) && (
                                             <span className="text-[9px] text-gray-500 uppercase font-medium mt-1 tracking-tight">
-                                                {company.headerLabel3}
+                                                {quote.customHeaderLabel3 !== undefined ? quote.customHeaderLabel3 : company.headerLabel3}
                                             </span>
                                         )}
                                     </div>
@@ -96,7 +120,7 @@ export const QuotePDF = React.forwardRef<HTMLDivElement, QuotePDFProps>(({ quote
                                 </div>
 
                                 {/* Items */}
-                                <table className="w-full mb-6">
+                                <table className="w-full relative z-10">
                                     <thead>
                                         <tr className="border-b-2 border-gray-200">
                                             <th className="text-center py-2 font-bold text-gray-600 uppercase text-[10px] tracking-wider w-20">Cant.</th>
@@ -123,53 +147,53 @@ export const QuotePDF = React.forwardRef<HTMLDivElement, QuotePDFProps>(({ quote
                                         ))}
                                     </tbody>
                                 </table>
+                            </div>
 
-                                {/* Totals & Signatures Container - Keep Together */}
-                                <div className="break-inside-avoid">
-                                    {/* Totals */}
-                                    <div className="flex justify-end mb-6">
-                                        <div className="w-64">
+                            {/* Totals & Signatures Container - Keep Together */}
+                            <div className="break-inside-avoid">
+                                {/* Totals */}
+                                <div className="flex justify-end mb-6">
+                                    <div className="w-64">
+                                        <div className="flex justify-between py-1 text-xs text-gray-600 border-b border-gray-100">
+                                            <span>Subtotal:</span>
+                                            <span>{formatCurrency(quote.subtotal)}</span>
+                                        </div>
+                                        {quote.showIva && (
                                             <div className="flex justify-between py-1 text-xs text-gray-600 border-b border-gray-100">
-                                                <span>Subtotal:</span>
-                                                <span>{formatCurrency(quote.subtotal)}</span>
+                                                <span>IVA (16%):</span>
+                                                <span>{formatCurrency(quote.iva)}</span>
                                             </div>
-                                            {quote.showIva && (
-                                                <div className="flex justify-between py-1 text-xs text-gray-600 border-b border-gray-100">
-                                                    <span>IVA (16%):</span>
-                                                    <span>{formatCurrency(quote.iva)}</span>
-                                                </div>
-                                            )}
-                                            <div className="flex justify-between py-2 text-lg font-bold text-blue-900 mt-1">
-                                                <span>Total:</span>
-                                                <span>{formatCurrency(quote.total)}</span>
-                                            </div>
+                                        )}
+                                        <div className="flex justify-between py-2 text-lg font-bold text-blue-900 mt-1">
+                                            <span>Total:</span>
+                                            <span>{formatCurrency(quote.total)}</span>
                                         </div>
                                     </div>
-
-                                    {/* Notes */}
-                                    {quote.notes && (
-                                        <div className="mb-10 border-t border-gray-100 pt-4">
-                                            <h4 className="text-[10px] font-bold text-gray-700 mb-1 uppercase tracking-tight">Notas Adicionales:</h4>
-                                            <p className="text-xs text-gray-600 whitespace-pre-wrap leading-relaxed">{quote.notes}</p>
-                                        </div>
-                                    )}
-
-                                    {/* Signature Area */}
-                                    {quote.showSignature && (
-                                        <div className="mt-12 mb-8 flex justify-between gap-12">
-                                            <div className="flex-1 border-t border-gray-400 pt-2 text-center">
-                                                <p className="text-[9px] font-bold text-gray-700 uppercase">Realizó la Cotización</p>
-                                                <p className="text-xs mt-2 font-medium text-gray-900">{quote.employeeName || 'Persona Responsable'}</p>
-                                                <p className="text-[9px] text-gray-500 uppercase">{quote.employeePosition || 'Puesto'}</p>
-                                            </div>
-                                            <div className="flex-1 border-t border-gray-400 pt-2 text-center">
-                                                <p className="text-[9px] font-bold text-gray-700 uppercase">Aceptación del Cliente</p>
-                                                <div className="h-6"></div>
-                                                <p className="text-[9px] text-gray-400 mt-1 italic font-serif">Acepto de Conformidad</p>
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
+
+                                {/* Notes */}
+                                {quote.notes && (
+                                    <div className="mb-10 border-t border-gray-100 pt-4">
+                                        <h4 className="text-[10px] font-bold text-gray-700 mb-1 uppercase tracking-tight">Notas Adicionales:</h4>
+                                        <p className="text-xs text-gray-600 whitespace-pre-wrap leading-relaxed">{quote.notes}</p>
+                                    </div>
+                                )}
+
+                                {/* Signature Area */}
+                                {quote.showSignature && (
+                                    <div className="mt-12 mb-8 flex justify-between gap-12">
+                                        <div className="flex-1 border-t border-gray-400 pt-2 text-center">
+                                            <p className="text-[9px] font-bold text-gray-700 uppercase">Realizó la Cotización</p>
+                                            <p className="text-xs mt-2 font-medium text-gray-900">{quote.employeeName || 'Persona Responsable'}</p>
+                                            <p className="text-[9px] text-gray-500 uppercase">{quote.employeePosition || 'Puesto'}</p>
+                                        </div>
+                                        <div className="flex-1 border-t border-gray-400 pt-2 text-center">
+                                            <p className="text-[9px] font-bold text-gray-700 uppercase">Aceptación del Cliente</p>
+                                            <div className="h-6"></div>
+                                            <p className="text-[9px] text-gray-400 mt-1 italic font-serif">Acepto de Conformidad</p>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </td>
                     </tr>
@@ -178,15 +202,29 @@ export const QuotePDF = React.forwardRef<HTMLDivElement, QuotePDFProps>(({ quote
                 {/* Annex Content - Separated to handle page breaks better */}
                 {quote.annexItems && quote.annexItems.length > 0 && (
                     <tbody className="table-row-group annex-section">
-                        <tr>
+                        {/* 
+                           If there are images in the annex, we want to hide the watermark on this page.
+                           We achieve this by making the row opaque white and ensuring it covers the watermark area.
+                        */}
+                        <tr className={quote.annexItems.some(i => i.type === 'image') ? "bg-white" : ""}>
                             <td>
                                 <div className="px-12 py-2">
                                     <h3 className="text-md font-bold text-blue-900 mb-4 uppercase tracking-wide border-b pb-2">Anexo Técnico</h3>
                                     <div
                                         className="relative bg-white"
                                         style={{
+                                            // Ensure minimum height to cover watermark if images are present
+                                            // Reduced to 22cm to prevent forcing a new page
+                                            minHeight: quote.annexItems.some(i => i.type === 'image') ? '22cm' : '200px',
                                             height: `${Math.max(...quote.annexItems.map(i => i.y + i.height), 200)}px`,
-                                            width: '100%'
+                                            // Aggressive negative margins to fully cover print margins (1.5cm) + safety buffer
+                                            width: 'calc(100% + 5cm)',
+                                            marginLeft: '-2.5cm',
+                                            marginRight: '-2.5cm',
+                                            paddingLeft: '2.5cm', // Compensate internal padding to keep content centered relative to page
+                                            paddingRight: '2.5cm',
+                                            zIndex: 20, // Ensure it sits above watermark
+                                            marginBottom: '-3cm' // Negative margin to prevent pushing footer to next page
                                         }}
                                     >
                                         {quote.annexItems.map((item) => (
@@ -194,7 +232,7 @@ export const QuotePDF = React.forwardRef<HTMLDivElement, QuotePDFProps>(({ quote
                                                 key={item.id}
                                                 className="absolute overflow-hidden"
                                                 style={{
-                                                    left: `${item.x}px`,
+                                                    left: `${item.x}px`, // Content is now relative to the padded container, so x is correct
                                                     top: `${item.y}px`,
                                                     width: `${item.width}px`,
                                                     height: `${item.height}px`
@@ -228,10 +266,6 @@ export const QuotePDF = React.forwardRef<HTMLDivElement, QuotePDFProps>(({ quote
                                 <div className="text-sm text-gray-500 text-center">
                                     <p className="font-medium text-gray-900 mb-1">Gracias por su preferencia</p>
                                     <p className="text-[11px]">Esta cotización vincula únicamente los ítems descritos. Sujeta a términos y condiciones de la empresa.</p>
-                                    <div className="flex justify-between items-end mt-4 text-[10px] text-gray-400">
-                                        <p>Generado por QuoterPro - {company.name}</p>
-                                        <p className="page-number-label"></p>
-                                    </div>
                                 </div>
                             </div>
                         </td>
@@ -243,7 +277,7 @@ export const QuotePDF = React.forwardRef<HTMLDivElement, QuotePDFProps>(({ quote
             <style>{`
                 @media print {
                     @page {
-                        margin: 1cm 0;
+                        margin: 1cm 1.5cm; /* Margen vertical 1cm, horizontal 1.5cm */
                         size: auto;
                     }
                     body {
@@ -258,10 +292,6 @@ export const QuotePDF = React.forwardRef<HTMLDivElement, QuotePDFProps>(({ quote
                     }
                     .annex-section {
                         page-break-before: always !important;
-                    }
-                    .page-number-label:after {
-                        counter-increment: page;
-                        content: "Página " counter(page);
                     }
                     table {
                         width: 100%;
