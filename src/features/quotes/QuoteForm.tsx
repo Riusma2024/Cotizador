@@ -42,11 +42,11 @@ export const QuoteForm = () => {
             filename: filename,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: {
-                scale: 3, // Increased scale for crispness
+                scale: 2, // Scale 2 is usually optimal for file size vs quality
                 useCORS: true,
                 letterRendering: true,
                 logging: false,
-                windowWidth: 1200 // Fixed width for consistent layout
+                windowWidth: 816 // 8.5 inches at 96 DPI for accurate Letter proportions
             },
             jsPDF: { unit: 'cm', format: 'letter', orientation: 'portrait' },
             pagebreak: {
@@ -89,6 +89,8 @@ export const QuoteForm = () => {
         showIva: false,
         notes: '',
         showSignature: false,
+        showAnnex: true,
+        annexTitle: 'Anexo Técnico',
         annexItems: []
     });
 
@@ -700,12 +702,40 @@ export const QuoteForm = () => {
 
                 {/* Technical Annex */}
                 <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-4">
-                    <h3 className="text-lg font-medium text-gray-900 mb-3">Anexo Técnico</h3>
-                    <p className="text-sm text-gray-500 mb-3">Agrega imágenes o texto adicional que se mostrará en una página separada del PDF.</p>
-                    <AnnexEditor
-                        items={formData.annexItems || []}
-                        onChange={annexItems => setFormData({ ...formData, annexItems })}
-                    />
+                    <div className="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 className="text-lg font-medium text-gray-900">Anexo Técnico</h3>
+                            <p className="text-sm text-gray-500 mt-1">Agrega imágenes o texto adicional que se mostrará en una página separada al final.</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                className="sr-only peer"
+                                checked={formData.showAnnex ?? true}
+                                onChange={e => setFormData({ ...formData, showAnnex: e.target.checked })}
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+
+                    {formData.showAnnex && (
+                        <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Título del Anexo</label>
+                                <input
+                                    type="text"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                    value={formData.annexTitle || ''}
+                                    onChange={e => setFormData({ ...formData, annexTitle: e.target.value })}
+                                    placeholder="Ej: Anexo Técnico, Especificaciones, etc."
+                                />
+                            </div>
+                            <AnnexEditor
+                                items={formData.annexItems || []}
+                                onChange={annexItems => setFormData({ ...formData, annexItems })}
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {/* Totals */}
