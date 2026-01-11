@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppLayout } from './components/layout/AppLayout';
+import { CustomerManager } from './features/customers/CustomerManager';
 import { CompanyList } from './features/company/CompanyList';
-import { CompanyForm } from './features/company/CompanyForm';
+import { EmployeeManager } from './features/employees/EmployeeManager';
 import { ProductList } from './features/catalog/ProductList';
-import { ProductForm } from './features/catalog/ProductForm';
 import { QuoteList } from './features/quotes/QuoteList';
 import { QuoteForm } from './features/quotes/QuoteForm';
 
@@ -12,24 +12,14 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<AppLayout />}>
-          <Route index element={<Navigate to="/settings" replace />} />
-          <Route path="settings">
-            <Route index element={<CompanyList />} />
-            <Route path="new" element={<CompanyForm />} />
-            <Route path=":id" element={<CompanyForm />} />
-          </Route>
-
-          <Route path="catalog">
-            <Route index element={<ProductList />} />
-            <Route path="new" element={<ProductForm />} />
-            <Route path=":id" element={<ProductForm />} />
-          </Route>
-
-          <Route path="quotes">
-            <Route index element={<QuoteList />} />
-            <Route path="new" element={<QuoteForm />} />
-            <Route path=":id" element={<QuoteForm />} />
-          </Route>
+          <Route index element={<Navigate to="/quotes" replace />} />
+          <Route path="quotes" element={<QuoteList />} />
+          <Route path="quotes/new" element={<QuoteForm />} />
+          <Route path="quotes/:id/edit" element={<QuoteForm />} />
+          <Route path="customers" element={<CustomerManager />} />
+          <Route path="employees" element={<EmployeeManager />} />
+          <Route path="catalog" element={<ProductList />} />
+          <Route path="settings" element={<CompanyList />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -1,6 +1,6 @@
 
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Settings, FileText, Package } from 'lucide-react';
+import { LayoutDashboard, Settings, FileText, Package, Users, Contact } from 'lucide-react';
 import clsx from 'clsx';
 
 const NavItem = ({ to, icon: Icon, label }: { to: string; icon: any; label: string }) => {
@@ -35,6 +35,8 @@ export const AppLayout = () => {
                 <nav className="p-4 space-y-1">
                     <NavItem to="/" icon={LayoutDashboard} label="Dashboard" />
                     <NavItem to="/quotes" icon={FileText} label="Cotizaciones" />
+                    <NavItem to="/customers" icon={Users} label="Clientes" />
+                    <NavItem to="/employees" icon={Contact} label="Personal" />
                     <NavItem to="/catalog" icon={Package} label="Catálogo" />
                     <NavItem to="/settings" icon={Settings} label="Configuración" />
                 </nav>
