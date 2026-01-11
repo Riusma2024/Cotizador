@@ -75,132 +75,134 @@ export const AnnexEditor: React.FC<AnnexEditorProps> = ({ items, onChange }) => 
                 </label>
             </div>
 
-            <div
-                ref={canvasRef}
-                className="relative bg-white border-2 border-gray-300 rounded-lg overflow-hidden"
-                style={{ minHeight: '1060px', width: '100%' }}
-                onClick={(e) => {
-                    if (e.target === canvasRef.current) {
-                        setSelectedId(null);
-                    }
-                }}
-            >
-                {/* Visual Guide for PDF Page Limit (approx 960px for Letter size minus margins) */}
+            <div className="flex justify-center bg-gray-100 p-4 rounded-lg border border-gray-200 overflow-x-auto">
                 <div
-                    className="absolute left-0 right-0 border-b-2 border-red-300 border-dashed pointer-events-none z-0"
-                    style={{ top: '960px' }}
+                    ref={canvasRef}
+                    className="relative bg-white border-2 border-gray-300 shadow-sm"
+                    style={{ minHeight: '1060px', width: '702px' }}
+                    onClick={(e) => {
+                        if (e.target === canvasRef.current) {
+                            setSelectedId(null);
+                        }
+                    }}
                 >
-                    <span className="absolute right-2 -top-6 text-xs text-red-400 font-medium bg-white px-1 shadow-sm rounded border border-red-100">
-                        Límite sugerido para PDF (Página 1)
-                    </span>
-                </div>
-
-                {items.map((item) => (
+                    {/* Visual Guide for PDF Page Limit (approx 960px for Letter size minus margins) */}
                     <div
-                        key={item.id}
-                        className={`absolute group cursor-move border-2 transition-all ${selectedId === item.id ? 'border-blue-500 shadow-lg' : 'border-transparent hover:border-blue-300'
-                            }`}
-                        style={{
-                            left: `${item.x}px`,
-                            top: `${item.y}px`,
-                            width: `${item.width}px`,
-                            height: `${item.height}px`
-                        }}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedId(item.id);
-                        }}
-                        onMouseEnter={() => setHoveredId(item.id)}
-                        onMouseLeave={() => setHoveredId(null)}
-                        onMouseDown={(e) => {
-                            if (e.button !== 0 || e.target !== e.currentTarget) return;
-                            e.preventDefault();
-                            const canvas = canvasRef.current;
-                            if (!canvas) return;
-
-                            const rect = canvas.getBoundingClientRect();
-                            const startX = e.clientX - rect.left - item.x;
-                            const startY = e.clientY - rect.top - item.y;
-
-                            const handleMouseMove = (moveEvent: MouseEvent) => {
-                                const newX = Math.max(0, Math.min(moveEvent.clientX - rect.left - startX, rect.width - item.width));
-                                const newY = Math.max(0, Math.min(moveEvent.clientY - rect.top - startY, rect.height - item.height));
-                                updateItem(item.id, { x: newX, y: newY });
-                            };
-
-                            const handleMouseUp = () => {
-                                document.removeEventListener('mousemove', handleMouseMove);
-                                document.removeEventListener('mouseup', handleMouseUp);
-                            };
-
-                            document.addEventListener('mousemove', handleMouseMove);
-                            document.addEventListener('mouseup', handleMouseUp);
-                        }}
+                        className="absolute left-0 right-0 border-b-2 border-red-300 border-dashed pointer-events-none z-0"
+                        style={{ top: '780px' }}
                     >
-                        {/* Delete button on hover */}
-                        {(hoveredId === item.id || selectedId === item.id) && (
-                            <button
-                                type="button"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleRemoveItem(item.id);
-                                }}
-                                className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 z-10"
-                            >
-                                <Trash2 size={14} />
-                            </button>
-                        )}
+                        <span className="absolute right-2 -top-6 text-xs text-red-400 font-medium bg-white px-1 shadow-sm rounded border border-red-100">
+                            Límite sugerido para PDF (Página 1 + Encabezado)
+                        </span>
+                    </div>
 
-                        {/* Content */}
-                        <div className="w-full h-full pointer-events-none">
-                            {item.type === 'text' ? (
-                                <div className="w-full h-full p-2 text-sm text-gray-700 whitespace-pre-wrap overflow-hidden">
-                                    {item.content}
-                                </div>
-                            ) : (
-                                <img src={item.content} alt="Annex" className="w-full h-full object-contain" />
+                    {items.map((item) => (
+                        <div
+                            key={item.id}
+                            className={`absolute group cursor-move border-2 transition-all ${selectedId === item.id ? 'border-blue-500 shadow-lg' : 'border-transparent hover:border-blue-300'
+                                }`}
+                            style={{
+                                left: `${item.x}px`,
+                                top: `${item.y}px`,
+                                width: `${item.width}px`,
+                                height: `${item.height}px`
+                            }}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedId(item.id);
+                            }}
+                            onMouseEnter={() => setHoveredId(item.id)}
+                            onMouseLeave={() => setHoveredId(null)}
+                            onMouseDown={(e) => {
+                                if (e.button !== 0 || e.target !== e.currentTarget) return;
+                                e.preventDefault();
+                                const canvas = canvasRef.current;
+                                if (!canvas) return;
+
+                                const rect = canvas.getBoundingClientRect();
+                                const startX = e.clientX - rect.left - item.x;
+                                const startY = e.clientY - rect.top - item.y;
+
+                                const handleMouseMove = (moveEvent: MouseEvent) => {
+                                    const newX = Math.max(0, Math.min(moveEvent.clientX - rect.left - startX, 702 - item.width));
+                                    const newY = Math.max(0, Math.min(moveEvent.clientY - rect.top - startY, rect.height - item.height));
+                                    updateItem(item.id, { x: newX, y: newY });
+                                };
+
+                                const handleMouseUp = () => {
+                                    document.removeEventListener('mousemove', handleMouseMove);
+                                    document.removeEventListener('mouseup', handleMouseUp);
+                                };
+
+                                document.addEventListener('mousemove', handleMouseMove);
+                                document.addEventListener('mouseup', handleMouseUp);
+                            }}
+                        >
+                            {/* Delete button on hover */}
+                            {(hoveredId === item.id || selectedId === item.id) && (
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRemoveItem(item.id);
+                                    }}
+                                    className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 z-10"
+                                >
+                                    <Trash2 size={14} />
+                                </button>
+                            )}
+
+                            {/* Content */}
+                            <div className="w-full h-full pointer-events-none">
+                                {item.type === 'text' ? (
+                                    <div className="w-full h-full p-2 text-sm text-gray-700 whitespace-pre-wrap overflow-hidden">
+                                        {item.content}
+                                    </div>
+                                ) : (
+                                    <img src={item.content} alt="Annex" className="w-full h-full object-contain" />
+                                )}
+                            </div>
+
+                            {/* Resize handles */}
+                            {selectedId === item.id && (
+                                <>
+                                    {/* Bottom-right corner resize */}
+                                    <div
+                                        className="absolute bottom-0 right-0 w-4 h-4 bg-blue-500 cursor-se-resize"
+                                        onMouseDown={(e) => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            const canvas = canvasRef.current;
+                                            if (!canvas) return;
+
+                                            const rect = canvas.getBoundingClientRect();
+                                            const startWidth = item.width;
+                                            const startHeight = item.height;
+                                            const startMouseX = e.clientX;
+                                            const startMouseY = e.clientY;
+
+                                            const handleMouseMove = (moveEvent: MouseEvent) => {
+                                                const deltaX = moveEvent.clientX - startMouseX;
+                                                const deltaY = moveEvent.clientY - startMouseY;
+                                                const newWidth = Math.max(50, Math.min(startWidth + deltaX, 702 - item.x));
+                                                const newHeight = Math.max(50, Math.min(startHeight + deltaY, rect.height - item.y));
+                                                updateItem(item.id, { width: newWidth, height: newHeight });
+                                            };
+
+                                            const handleMouseUp = () => {
+                                                document.removeEventListener('mousemove', handleMouseMove);
+                                                document.removeEventListener('mouseup', handleMouseUp);
+                                            };
+
+                                            document.addEventListener('mousemove', handleMouseMove);
+                                            document.addEventListener('mouseup', handleMouseUp);
+                                        }}
+                                    />
+                                </>
                             )}
                         </div>
-
-                        {/* Resize handles */}
-                        {selectedId === item.id && (
-                            <>
-                                {/* Bottom-right corner resize */}
-                                <div
-                                    className="absolute bottom-0 right-0 w-4 h-4 bg-blue-500 cursor-se-resize"
-                                    onMouseDown={(e) => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        const canvas = canvasRef.current;
-                                        if (!canvas) return;
-
-                                        const rect = canvas.getBoundingClientRect();
-                                        const startWidth = item.width;
-                                        const startHeight = item.height;
-                                        const startMouseX = e.clientX;
-                                        const startMouseY = e.clientY;
-
-                                        const handleMouseMove = (moveEvent: MouseEvent) => {
-                                            const deltaX = moveEvent.clientX - startMouseX;
-                                            const deltaY = moveEvent.clientY - startMouseY;
-                                            const newWidth = Math.max(50, Math.min(startWidth + deltaX, rect.width - item.x));
-                                            const newHeight = Math.max(50, Math.min(startHeight + deltaY, rect.height - item.y));
-                                            updateItem(item.id, { width: newWidth, height: newHeight });
-                                        };
-
-                                        const handleMouseUp = () => {
-                                            document.removeEventListener('mousemove', handleMouseMove);
-                                            document.removeEventListener('mouseup', handleMouseUp);
-                                        };
-
-                                        document.addEventListener('mousemove', handleMouseMove);
-                                        document.addEventListener('mouseup', handleMouseUp);
-                                    }}
-                                />
-                            </>
-                        )}
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
 
             {selectedItem && selectedItem.type === 'text' && (

@@ -98,6 +98,8 @@ export interface Quote {
     showIva: boolean;
     notes?: string;
     showSignature?: boolean;
+    showAnnex?: boolean;
+    annexTitle?: string;
     annexItems?: AnnexItem[];
     customHeaderLabel1?: string;
     customHeaderLabel2?: string;
