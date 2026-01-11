@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Building2, Edit, Check } from 'lucide-react';
 import type { CompanyConfig } from '../../types';
 import { storage } from '../../storage';
+import { DataManagement } from './DataManagement';
 import clsx from 'clsx';
 
 export const CompanyList = () => {
@@ -99,6 +100,8 @@ export const CompanyList = () => {
                     </div>
                 )}
             </div>
+
+            <DataManagement />
         </div>
     );
 };

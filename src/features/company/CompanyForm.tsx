@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Save, ArrowLeft, Upload, Trash2 } from 'lucide-react';
 import type { CompanyConfig } from '../../types';
 import { storage } from '../../storage';
-import { LogoCropper } from './LogoCropper';
+// LogoCropper component removed - direct upload instead
 
 export const CompanyForm = () => {
     const navigate = useNavigate();
@@ -19,7 +19,6 @@ export const CompanyForm = () => {
         currentFolio: 1,
     });
     const [status, setStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
     useEffect(() => {
         if (id) {
@@ -35,15 +34,10 @@ export const CompanyForm = () => {
         if (e.target.files && e.target.files.length > 0) {
             const reader = new FileReader();
             reader.addEventListener('load', () => {
-                setSelectedImage(reader.result as string);
+                setFormData({ ...formData, logoUrl: reader.result as string });
             });
             reader.readAsDataURL(e.target.files[0]);
         }
-    };
-
-    const handleCropComplete = (croppedImage: string) => {
-        setFormData({ ...formData, logoUrl: croppedImage });
-        setSelectedImage(null);
     };
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -77,13 +71,7 @@ export const CompanyForm = () => {
                 </h2>
             </div>
 
-            {selectedImage && (
-                <LogoCropper
-                    image={selectedImage}
-                    onCropComplete={handleCropComplete}
-                    onCancel={() => setSelectedImage(null)}
-                />
-            )}
+
 
             <form onSubmit={handleSubmit} className="bg-white shadow-sm rounded-lg border border-gray-200 p-6 space-y-8">
                 {/* Logo Section */}
@@ -179,8 +167,8 @@ export const CompanyForm = () => {
                                             src={formData.watermarkUrl}
                                             alt="Opacity Preview"
                                             className={`object-contain transition-all duration-300 ${(formData.watermarkSize === '75') ? 'w-[75%] h-[75%]' :
-                                                    (formData.watermarkSize === '50') ? 'w-[50%] h-[50%]' :
-                                                        'w-full h-full'
+                                                (formData.watermarkSize === '50') ? 'w-[50%] h-[50%]' :
+                                                    'w-full h-full'
                                                 }`}
                                             style={{ opacity: (formData.watermarkOpacity || 8) / 100 }}
                                         />
@@ -310,6 +298,20 @@ export const CompanyForm = () => {
                         />
                     </div>
 
+                    <div className="space-y-2 md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700">Formato de Nombre de Archivo PDF (Descarga)</label>
+                        <input
+                            type="text"
+                            placeholder="Ej: {folio} - {customer} - {date}"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value={formData.pdfFilenameFormat || ''}
+                            onChange={e => setFormData({ ...formData, pdfFilenameFormat: e.target.value })}
+                        />
+                        <p className="text-[11px] text-gray-500 italic">
+                            Puedes usar tags: <span className="font-mono text-blue-600">{'{folio}'}</span>, <span className="font-mono text-blue-600">{'{customer}'}</span>, <span className="font-mono text-blue-600">{'{phone}'}</span>, <span className="font-mono text-blue-600">{'{date}'}</span>. Dejar vacío para usar solo el folio.
+                        </p>
+                    </div>
+
                     <div className="space-y-2">
                         <label className="block text-sm font-medium text-gray-700">Etiqueta Columna 1 (bajo logo)</label>
                         <input
@@ -341,6 +343,35 @@ export const CompanyForm = () => {
                             value={formData.headerLabel3 || ''}
                             onChange={e => setFormData({ ...formData, headerLabel3: e.target.value })}
                         />
+                    </div>
+
+                    <div className="md:col-span-2 space-y-3 pt-4 border-t border-gray-100">
+                        <h4 className="font-semibold text-gray-900 text-sm">Distribución del Encabezado (PDF)</h4>
+                        <p className="text-xs text-gray-500">Selecciona el orden de aparición de los 3 bloques principales en la cabecera de tus cotizaciones.</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {[
+                                { id: 'logo-info-folio', label: 'Logotipo / Info Empresa / Folio y Fecha', order: ['logo', 'info', 'folio'] },
+                                { id: 'logo-folio-info', label: 'Logotipo / Folio y Fecha / Info Empresa', order: ['logo', 'folio', 'info'] },
+                                { id: 'info-logo-folio', label: 'Info Empresa / Logotipo / Folio y Fecha', order: ['info', 'logo', 'folio'] },
+                                { id: 'info-folio-logo', label: 'Info Empresa / Folio y Fecha / Logotipo', order: ['info', 'folio', 'logo'] },
+                                { id: 'folio-logo-info', label: 'Folio y Fecha / Logotipo / Info Empresa', order: ['folio', 'logo', 'info'] },
+                                { id: 'folio-info-logo', label: 'Folio y Fecha / Info Empresa / Logotipo', order: ['folio', 'info', 'logo'] }
+                            ].map((layout) => (
+                                <label key={layout.id} className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${JSON.stringify(formData.headerColumnOrder || ['logo', 'info', 'folio']) === JSON.stringify(layout.order)
+                                        ? 'bg-blue-50 border-blue-400 ring-1 ring-blue-400'
+                                        : 'bg-white border-gray-200 hover:bg-gray-50'
+                                    }`}>
+                                    <input
+                                        type="radio"
+                                        name="headerColumnOrder"
+                                        className="text-blue-600 focus:ring-blue-500"
+                                        checked={JSON.stringify(formData.headerColumnOrder || ['logo', 'info', 'folio']) === JSON.stringify(layout.order)}
+                                        onChange={() => setFormData({ ...formData, headerColumnOrder: layout.order })}
+                                    />
+                                    <span className="text-xs font-medium text-gray-800">{layout.label}</span>
+                                </label>
+                            ))}
+                        </div>
                     </div>
                 </div>
 

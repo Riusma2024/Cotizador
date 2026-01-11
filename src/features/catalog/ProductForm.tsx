@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Save, ArrowLeft, Ruler, Box, Package } from 'lucide-react';
+import { Save, ArrowLeft, Ruler, Box, Package, Clock } from 'lucide-react';
 import type { Product, CalculationType, Category } from '../../types';
 import { storage } from '../../storage';
 import clsx from 'clsx';
@@ -88,8 +88,8 @@ export const ProductForm = () => {
             type="button"
             onClick={() => {
                 let unit = 'PZ';
-                if (type === 'ml') unit = 'ML';
-                if (type === 'm2') unit = 'M2';
+                if (type === 'ml' || type === 'm2') unit = 'm';
+                if (type === 'time') unit = 'hours';
                 setFormData({ ...formData, calculationType: type, unit });
             }}
             className={clsx(
@@ -166,25 +166,53 @@ export const ProductForm = () => {
                 {/* Calculation Type */}
                 <div className="space-y-3">
                     <label className="block text-sm font-medium text-gray-700">Tipo de Cálculo</label>
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <CalculationOption type="fixed" icon={Package} label="Fijo / Unidad" />
                         <CalculationOption type="ml" icon={Ruler} label="Metro Lineal" />
                         <CalculationOption type="m2" icon={Box} label="Metro Cuadrado" />
+                        <CalculationOption type="time" icon={Clock} label="Tiempo" />
                     </div>
                 </div>
 
                 {/* Pricing */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="space-y-2">
-                        <label className="block text-sm font-medium text-gray-700">Unidad de Medida</label>
-                        <input
-                            type="text"
-                            required
-                            placeholder="Ej: PZ, ML, M2"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            value={formData.unit}
-                            onChange={e => setFormData({ ...formData, unit: e.target.value })}
-                        />
+                        <label className="block text-sm font-medium text-gray-700">Unidad de Medida (Base para el precio)</label>
+                        {formData.calculationType === 'fixed' ? (
+                            <input
+                                type="text"
+                                required
+                                placeholder="Ej: PZ, Kit, Servicio"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={formData.unit}
+                                onChange={e => setFormData({ ...formData, unit: e.target.value })}
+                            />
+                        ) : (
+                            <select
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={formData.unit}
+                                onChange={e => setFormData({ ...formData, unit: e.target.value })}
+                            >
+                                {(formData.calculationType === 'ml' || formData.calculationType === 'm2') && (
+                                    <>
+                                        <option value="m">Metros (m)</option>
+                                        <option value="cm">Centímetros (cm)</option>
+                                        <option value="mm">Milímetros (mm)</option>
+                                    </>
+                                )}
+                                {formData.calculationType === 'time' && (
+                                    <>
+                                        <option value="minutes">Minutos</option>
+                                        <option value="hours">Horas</option>
+                                        <option value="days">Días</option>
+                                        <option value="months">Meses</option>
+                                    </>
+                                )}
+                            </select>
+                        )}
+                        <p className="text-[10px] text-gray-500 italic">
+                            * El precio ingresado corresponde a 1 unidad de esta medida.
+                        </p>
                     </div>
 
                     <div className="space-y-2">

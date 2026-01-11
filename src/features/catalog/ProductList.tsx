@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, Package, Ruler, Box, Trash2, Settings } from 'lucide-react';
+import { Plus, Search, Package, Ruler, Box, Trash2, Settings, Clock } from 'lucide-react';
 import type { Product } from '../../types';
 import { storage } from '../../storage';
 import { CategoryManager } from './CategoryManager';
+import { formatCurrency } from '../../utils/calculations';
 
 const CalculationIcon = ({ type }: { type: Product['calculationType'] }) => {
     switch (type) {
         case 'ml': return <Ruler size={16} className="text-blue-500" />;
         case 'm2': return <Box size={16} className="text-purple-500" />;
+        case 'time': return <Clock size={16} className="text-orange-500" />;
         default: return <Package size={16} className="text-gray-500" />;
     }
 };
@@ -17,6 +19,7 @@ const CalculationLabel = ({ type }: { type: Product['calculationType'] }) => {
     switch (type) {
         case 'ml': return 'Metro Lineal';
         case 'm2': return 'Metro Cuadrado';
+        case 'time': return 'Tiempo';
         default: return 'Fijo / Unidad';
     }
 };
@@ -127,7 +130,7 @@ export const ProductList = () => {
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
-                                    ${product.price.toFixed(2)}
+                                    {formatCurrency(product.price)}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div className="flex justify-end gap-2">
