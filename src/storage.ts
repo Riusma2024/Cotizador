@@ -1,143 +1,186 @@
-import type { Customer, Company, Product, Quote, Employee } from './types';
+import type { CompanyConfig, Product, Customer, Quote, Category, Employee } from './types';
 
-const STORAGE_KEYS = {
-    CUSTOMERS: 'calculator_customers',
-    COMPANIES: 'calculator_companies',
-    PRODUCTS: 'calculator_products',
-    QUOTES: 'calculator_quotes',
-    EMPLOYEES: 'calculator_employees',
+const KEYS = {
+    COMPANIES: 'quoter_companies',
+    ACTIVE_COMPANY: 'quoter_active_company_id',
+    PRODUCTS: 'quoter_products',
+    CUSTOMERS: 'quoter_customers',
+    QUOTES: 'quoter_quotes',
+    EMPLOYEES: 'quoter_employees',
+    CATEGORIES: 'quoter_categories',
 };
 
-// --- DATA INITIALIZATION ---
-const defaultCompany: Company = {
-    id: '1',
-    name: 'Mi Empresa',
-    address: 'Dirección de la empresa',
-    phone: '555-000-0000',
-    email: 'contacto@empresa.com',
-    rfc: 'RFC000000000',
-    logoUrl: '',
-    bankInfo: 'Banco: Generico\nCuenta: 0000000000',
-    active: true,
-    pdfHeaderOrder: ['logo', 'info', 'folio'], // Default order
-};
-
-// Initialize with default company if empty
-const initData = () => {
-    const companies = localStorage.getItem(STORAGE_KEYS.COMPANIES);
-    if (!companies) {
-        localStorage.setItem(STORAGE_KEYS.COMPANIES, JSON.stringify([defaultCompany]));
-    }
-    // Ensure styles are clean on init? No, purely data storage.
-};
-
-initData();
-
-// --- GENERIC CRUD HELPERS ---
-const getItems = <T>(key: string): T[] => {
-    const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : [];
-};
-
-const saveItems = <T>(key: string, items: T[]) => {
-    localStorage.setItem(key, JSON.stringify(items));
-};
-
-const addItem = <T>(key: string, item: T) => {
-    const items = getItems<T>(key);
-    saveItems(key, [...items, item]);
-};
-
-const updateItem = <T extends { id: string }>(key: string, item: T) => {
-    const items = getItems<T>(key);
-    const index = items.findIndex((i) => i.id === item.id);
-    if (index !== -1) {
-        items[index] = item;
-        saveItems(key, items);
-    }
-};
-
-const deleteItem = <T extends { id: string }>(key: string, id: string) => {
-    const items = getItems<T>(key);
-    saveItems(key, items.filter((i) => i.id !== id));
-};
-
-// --- EXPORTED API ---
 export const storage = {
-    // Customers
-    getCustomers: () => getItems<Customer>(STORAGE_KEYS.CUSTOMERS),
-    addCustomer: (item: Customer) => addItem(STORAGE_KEYS.CUSTOMERS, item),
-    updateCustomer: (item: Customer) => updateItem(STORAGE_KEYS.CUSTOMERS, item),
-    deleteCustomer: (id: string) => deleteItem<Customer>(STORAGE_KEYS.CUSTOMERS, id),
-
     // Companies
-    getCompanies: () => getItems<Company>(STORAGE_KEYS.COMPANIES),
-    addCompany: (item: Company) => addItem(STORAGE_KEYS.COMPANIES, item),
-    updateCompany: (item: Company) => updateItem(STORAGE_KEYS.COMPANIES, item),
-    deleteCompany: (id: string) => deleteItem<Company>(STORAGE_KEYS.COMPANIES, id),
-    getActiveCompany: () => {
-        const companies = getItems<Company>(STORAGE_KEYS.COMPANIES);
-        return companies.find((c) => c.active) || companies[0];
+    getCompanies: (): CompanyConfig[] => {
+        const data = localStorage.getItem(KEYS.COMPANIES);
+        return data ? JSON.parse(data) : [];
     },
-    setActiveCompany: (id: string) => {
-        const companies = getItems<Company>(STORAGE_KEYS.COMPANIES);
-        const updated = companies.map(c => ({ ...c, active: c.id === id }));
-        saveItems(STORAGE_KEYS.COMPANIES, updated);
+    saveCompany: (company: CompanyConfig) => {
+        const companies = storage.getCompanies();
+        const index = companies.findIndex(c => c.id === company.id);
+        if (index >= 0) {
+            companies[index] = company;
+        } else {
+            companies.push(company);
+        }
+        localStorage.setItem(KEYS.COMPANIES, JSON.stringify(companies));
+    },
+    deleteCompany: (id: string) => {
+        const companies = storage.getCompanies().filter(c => c.id !== id);
+        localStorage.setItem(KEYS.COMPANIES, JSON.stringify(companies));
+    },
+    getActiveCompanyId: (): string | null => {
+        return localStorage.getItem(KEYS.ACTIVE_COMPANY);
+    },
+    setActiveCompanyId: (id: string) => {
+        localStorage.setItem(KEYS.ACTIVE_COMPANY, id);
+    },
+
+    // Categories
+    getCategories: (companyId?: string): Category[] => {
+        const data = localStorage.getItem(KEYS.CATEGORIES);
+        const allCategories: Category[] = data ? JSON.parse(data) : [];
+        if (companyId) {
+            return allCategories.filter(c => c.companyId === companyId);
+        }
+        return allCategories;
+    },
+    saveCategory: (category: Category) => {
+        const categories = storage.getCategories();
+        const index = categories.findIndex(c => c.id === category.id);
+        if (index >= 0) {
+            categories[index] = category;
+        } else {
+            categories.push(category);
+        }
+        localStorage.setItem(KEYS.CATEGORIES, JSON.stringify(categories));
+    },
+    deleteCategory: (id: string) => {
+        const categories = storage.getCategories().filter(c => c.id !== id);
+        localStorage.setItem(KEYS.CATEGORIES, JSON.stringify(categories));
     },
 
     // Products
-    getProducts: () => getItems<Product>(STORAGE_KEYS.PRODUCTS),
-    addProduct: (item: Product) => addItem(STORAGE_KEYS.PRODUCTS, item),
-    updateProduct: (item: Product) => updateItem(STORAGE_KEYS.PRODUCTS, item),
-    deleteProduct: (id: string) => deleteItem<Product>(STORAGE_KEYS.PRODUCTS, id),
+    getProducts: (companyId?: string): Product[] => {
+        const data = localStorage.getItem(KEYS.PRODUCTS);
+        const allProducts: Product[] = data ? JSON.parse(data) : [];
+        if (companyId) {
+            return allProducts.filter(p => p.companyId === companyId);
+        }
+        return allProducts;
+    },
+    saveProduct: (product: Product) => {
+        const products = storage.getProducts();
+        const index = products.findIndex(p => p.id === product.id);
+        if (index >= 0) {
+            products[index] = product;
+        } else {
+            products.push(product);
+        }
+        localStorage.setItem(KEYS.PRODUCTS, JSON.stringify(products));
+    },
+    deleteProduct: (id: string) => {
+        const products = storage.getProducts().filter(p => p.id !== id);
+        localStorage.setItem(KEYS.PRODUCTS, JSON.stringify(products));
+    },
+
+    // Customers
+    getCustomers: (companyId?: string): Customer[] => {
+        const data = localStorage.getItem(KEYS.CUSTOMERS);
+        const allCustomers: Customer[] = data ? JSON.parse(data) : [];
+        if (companyId) {
+            return allCustomers.filter(c => c.companyId === companyId);
+        }
+        return allCustomers;
+    },
+    saveCustomer: (customer: Customer) => {
+        const customers = storage.getCustomers();
+        const index = customers.findIndex(c => c.id === customer.id);
+        if (index >= 0) {
+            customers[index] = customer;
+        } else {
+            customers.push(customer);
+        }
+        localStorage.setItem(KEYS.CUSTOMERS, JSON.stringify(customers));
+    },
+    deleteCustomer: (id: string) => {
+        const customers = storage.getCustomers().filter(c => c.id !== id);
+        localStorage.setItem(KEYS.CUSTOMERS, JSON.stringify(customers));
+    },
 
     // Employees
-    getEmployees: () => getItems<Employee>(STORAGE_KEYS.EMPLOYEES),
-    addEmployee: (item: Employee) => addItem(STORAGE_KEYS.EMPLOYEES, item),
-    updateEmployee: (item: Employee) => updateItem(STORAGE_KEYS.EMPLOYEES, item),
-    deleteEmployee: (id: string) => deleteItem<Employee>(STORAGE_KEYS.EMPLOYEES, id),
+    getEmployees: (companyId?: string): Employee[] => {
+        const data = localStorage.getItem(KEYS.EMPLOYEES);
+        const allEmployees: Employee[] = data ? JSON.parse(data) : [];
+        if (companyId) {
+            return allEmployees.filter(e => e.companyId === companyId);
+        }
+        return allEmployees;
+    },
+    saveEmployee: (employee: Employee) => {
+        const employees = storage.getEmployees();
+        const index = employees.findIndex(e => e.id === employee.id);
+        if (index >= 0) {
+            employees[index] = employee;
+        } else {
+            employees.push(employee);
+        }
+        localStorage.setItem(KEYS.EMPLOYEES, JSON.stringify(employees));
+    },
+    deleteEmployee: (id: string) => {
+        const employees = storage.getEmployees().filter(e => e.id !== id);
+        localStorage.setItem(KEYS.EMPLOYEES, JSON.stringify(employees));
+    },
 
     // Quotes
-    getQuotes: () => getItems<Quote>(STORAGE_KEYS.QUOTES),
-    addQuote: (item: Quote) => addItem(STORAGE_KEYS.QUOTES, item),
-    updateQuote: (item: Quote) => updateItem(STORAGE_KEYS.QUOTES, item),
-    deleteQuote: (id: string) => deleteItem<Quote>(STORAGE_KEYS.QUOTES, id),
+    getQuotes: (companyId?: string): Quote[] => {
+        const data = localStorage.getItem(KEYS.QUOTES);
+        const allQuotes: Quote[] = data ? JSON.parse(data) : [];
+        if (companyId) {
+            return allQuotes.filter(q => q.companyId === companyId);
+        }
+        return allQuotes;
+    },
     saveQuote: (quote: Quote) => {
-        const quotes = getItems<Quote>(STORAGE_KEYS.QUOTES);
+        const quotes = storage.getQuotes();
         const index = quotes.findIndex(q => q.id === quote.id);
         if (index >= 0) {
             quotes[index] = quote;
         } else {
             quotes.push(quote);
         }
-        saveItems(STORAGE_KEYS.QUOTES, quotes);
+        localStorage.setItem(KEYS.QUOTES, JSON.stringify(quotes));
     },
 
-    // Export/Import
+    // Export / Import
     exportData: () => {
-        const data = {
-            customers: getItems(STORAGE_KEYS.CUSTOMERS),
-            companies: getItems(STORAGE_KEYS.COMPANIES),
-            products: getItems(STORAGE_KEYS.PRODUCTS),
-            quotes: getItems(STORAGE_KEYS.QUOTES),
-            employees: getItems(STORAGE_KEYS.EMPLOYEES),
-            timestamp: new Date().toISOString()
-        };
+        const data: Record<string, any> = {};
+        Object.values(KEYS).forEach(key => {
+            const val = localStorage.getItem(key);
+            if (val) {
+                try {
+                    data[key] = JSON.parse(val);
+                } catch (e) {
+                    // Fallback for non-JSON strings
+                    data[key] = val;
+                }
+            }
+        });
         return JSON.stringify(data, null, 2);
     },
-
-    importData: (json: string) => {
+    importData: (jsonString: string) => {
         try {
-            const data = JSON.parse(json);
-            if (data.customers) saveItems(STORAGE_KEYS.CUSTOMERS, data.customers);
-            if (data.companies) saveItems(STORAGE_KEYS.COMPANIES, data.companies);
-            if (data.products) saveItems(STORAGE_KEYS.PRODUCTS, data.products);
-            if (data.quotes) saveItems(STORAGE_KEYS.QUOTES, data.quotes);
-            if (data.employees) saveItems(STORAGE_KEYS.EMPLOYEES, data.employees);
+            const data = JSON.parse(jsonString);
+            Object.entries(data).forEach(([key, value]) => {
+                if (Object.values(KEYS).includes(key)) {
+                    localStorage.setItem(key, JSON.stringify(value));
+                }
+            });
             return true;
         } catch (e) {
-            console.error('Import failed', e);
+            console.error('Error importing data:', e);
             return false;
         }
-    }
+    },
 };
