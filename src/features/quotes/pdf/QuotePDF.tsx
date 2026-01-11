@@ -89,7 +89,10 @@ const PDFHeader = ({ company, quote }: { company: CompanyConfig; quote: Quote })
         <thead className="table-header-group relative z-20">
             <tr>
                 <td>
-                    <div className="py-1">
+                    {/* Header Background - 5% lighter than bg-gray-50 for a subtle effect */}
+                    <div
+                        className="py-3 px-4 rounded-xl border border-gray-100 bg-gray-50"
+                    >
                         <div className="grid grid-cols-3 gap-6 items-start">
                             {order.map((type, idx) => renderColumn(type, idx))}
                         </div>
@@ -252,26 +255,29 @@ export const QuotePDF = React.forwardRef<HTMLDivElement, QuotePDFProps>(({ quote
 
 
 
-            {quote.annexItems && quote.annexItems.length > 0 && (
-                <div className="annex-section-wrapper pt-10">
+            {quote.showAnnex && quote.annexItems && quote.annexItems.length > 0 && (
+                <div className="annex-section-wrapper">
                     <div className="annex-section">
                         <table className="w-full relative z-10 bg-white">
                             <PDFHeader company={company} quote={quote} />
                             <tbody className="table-row-group">
                                 <tr className="relative">
-                                    <td className="relative bg-white">
+                                    <td className="relative bg-white pt-0">
                                         {/* Robust mask for watermark on annex: only spreads downwards and sideways */}
                                         <div
                                             className="absolute top-0 left-0 right-0 h-1 bg-white z-[5] pointer-events-none print:block hidden"
                                             style={{ boxShadow: '0 100cm 0 100cm white' }}
                                         />
-                                        <div className="py-2 relative z-10 bg-white">
-                                            <h3 className="text-md font-bold text-blue-900 mb-4 uppercase tracking-wide border-b pb-2">Anexo Técnico</h3>
+                                        <div className="py-1 relative z-10 bg-white">
+                                            <h3 className="text-md font-bold text-blue-900 mb-2 uppercase tracking-wide">
+                                                {quote.annexTitle || 'Anexo Técnico'}
+                                            </h3>
                                             <div
-                                                className="relative"
+                                                className="relative mx-auto"
                                                 style={{
-                                                    minHeight: '200px',
-                                                    height: `${Math.max(...(quote.annexItems || []).map(i => i.y + i.height), 200)}px`
+                                                    minHeight: '780px',
+                                                    width: '702px',
+                                                    height: `${Math.max(...(quote.annexItems || []).map(i => i.y + i.height), 780)}px`
                                                 }}
                                             >
                                                 {quote.annexItems.map((item) => (
@@ -344,7 +350,7 @@ export const QuotePDF = React.forwardRef<HTMLDivElement, QuotePDFProps>(({ quote
                         display: block !important;
                         page-break-before: always !important;
                         break-before: page !important;
-                        padding-top: 1cm;
+                        padding-top: 0;
                     }
                 }
             `}</style>
