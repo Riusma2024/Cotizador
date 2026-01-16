@@ -831,28 +831,28 @@ export const QuoteForm = () => {
                     </div>
                 </div>
 
-                <div className="flex justify-end gap-4 pt-4">
+                <div className="flex flex-wrap justify-end gap-2 sm:gap-4 pt-4">
                     <button
                         type="button"
                         onClick={() => navigate('/quotes')}
-                        className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
+                        className="px-3 sm:px-4 py-2 text-sm sm:text-base text-gray-700 hover:bg-gray-100 rounded-md"
                     >
                         Cancelar
                     </button>
                     <button
                         type="submit"
                         disabled={status === 'saving'}
-                        className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-all"
+                        className="flex items-center gap-2 px-3 sm:px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-all text-sm sm:text-base"
                     >
                         {status === 'saved' ? (
                             <>
-                                <Check size={20} />
+                                <Check size={18} />
                                 ¡Guardado!
                             </>
                         ) : (
                             <>
-                                <Save size={20} />
-                                {status === 'saving' ? 'Guardando...' : 'Guardar y Seguir'}
+                                <Save size={18} />
+                                {status === 'saving' ? 'Guardando...' : 'Guardar y Continuar'}
                             </>
                         )}
                     </button>
@@ -860,9 +860,9 @@ export const QuoteForm = () => {
                         type="button"
                         onClick={handleSaveAndClose}
                         disabled={status === 'saving'}
-                        className="flex items-center gap-2 px-6 py-2 bg-gray-800 text-white rounded-md hover:bg-black disabled:opacity-50 transition-all font-bold"
+                        className="flex items-center gap-2 px-3 sm:px-6 py-2 bg-gray-800 text-white rounded-md hover:bg-black disabled:opacity-50 transition-all font-bold text-sm sm:text-base"
                     >
-                        <Save size={20} />
+                        <Save size={18} />
                         Guardar y Salir
                     </button>
                 </div>
